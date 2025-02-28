@@ -28,7 +28,7 @@ const WatchEpisode = () => {
         setVideoSource(null); // Reset video source when fetching new episode
         
         // First get the episodes list
-        const episodesResponse = await axios.get(`http://localhost:3000/api/anime/${animeId}/episodes`);
+        const episodesResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/anime/${animeId}/episodes`);
         
         if (!episodesResponse.data.success) {
           throw new Error(episodesResponse.data.message || 'Failed to fetch episodes');
@@ -46,7 +46,7 @@ const WatchEpisode = () => {
         setEpisodeDetails(currentEpisode);
 
         // Get the servers for this episode
-        const serverResponse = await axios.get(`http://localhost:3000/api/episode/servers`, {
+        const serverResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/episode/servers`, {
           params: { animeEpisodeId: currentEpisode.episodeId }
         });
         
@@ -85,7 +85,7 @@ const WatchEpisode = () => {
         setLoading(true);
         
         // Get the servers for this episode and category
-        const serverResponse = await axios.get(`http://localhost:3000/api/episode/servers`, {
+        const serverResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/episode/servers`, {
           params: { animeEpisodeId: episodeDetails.episodeId }
         });
         
@@ -257,7 +257,7 @@ const WatchEpisode = () => {
   const fetchVideoSource = async (epId, server, category) => {
     try {
       setLoading(true);
-      const sourceResponse = await axios.get(`http://localhost:3000/api/episode/sources`, {
+      const sourceResponse = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/episode/sources`, {
         params: {
           animeEpisodeId: epId,
           server,

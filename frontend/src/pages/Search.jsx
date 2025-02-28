@@ -39,7 +39,7 @@ const Search = () => {
       }
 
       try {
-        const response = await axios.get(`http://localhost:3000/api/search/suggestion`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/search/suggestion`, {
           params: { q: query }
         });
 
@@ -78,7 +78,7 @@ const Search = () => {
           return acc;
         }, {});
 
-        const response = await axios.get(`http://localhost:3000/api/search`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/search`, {
           params: {
             q: query,
             page,

@@ -20,7 +20,7 @@ const Navbar = () => {
     const fetchSuggestions = async () => {
       if (searchQuery.length > 2) {
         try {
-          const response = await axios.get(`http://localhost:3000/api/search/suggestion?q=${searchQuery}`);
+          const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/search/suggestion?q=${searchQuery}`);
           setSuggestions(response.data.results || []);
         } catch (error) {
           console.error('Error fetching suggestions:', error);
@@ -38,7 +38,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const response = await axios.get('http://localhost:3000/api/genre/action');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/genre/action`);
         if (response.data.success) {
           setGenres(response.data.data.genres || []);
         }

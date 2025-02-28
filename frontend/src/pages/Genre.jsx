@@ -24,7 +24,7 @@ const Genre = () => {
     const fetchAnimeByGenre = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/api/genre/${genreName}`, {
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/genre/${genreName}`, {
           params: { page },
         });
 

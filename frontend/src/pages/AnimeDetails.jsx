@@ -54,7 +54,7 @@ const AnimeDetails = () => {
     const fetchAnimeDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3000/api/anime/${animeId}`);
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/anime/${animeId}`);
         console.log('Anime Details Response:', response.data);
 
         if (response.data.success && response.data.data) {

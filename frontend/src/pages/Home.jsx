@@ -55,7 +55,7 @@ const Home = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('http://localhost:3000/api/home');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/home`);
         console.log('API Response:', response.data);
 
         if (response.data.success && response.data.data) {
