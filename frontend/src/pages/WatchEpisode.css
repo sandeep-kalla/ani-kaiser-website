@@ -1,0 +1,60 @@
+/* Mobile optimization for video player */
+
+/* Make controls less intrusive on mobile */
+@media (max-width: 768px) {
+  /* Reduce control bar size on mobile */
+  .video-js .vjs-control-bar {
+    font-size: 0.8em;
+    height: 3em;
+  }
+
+  /* Hide some controls on mobile to save space */
+  .video-js .vjs-remaining-time,
+  .video-js .vjs-custom-control-spacer,
+  .video-js .vjs-chapters-button,
+  .video-js .vjs-descriptions-button {
+    display: none;
+  }
+
+  /* Make controls fade out faster when not in use */
+  .video-js.vjs-user-inactive.vjs-playing .vjs-control-bar {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  /* Ensure controls don't block content when tapped */
+  .video-js .vjs-control-bar {
+    bottom: -0.5em;
+    transition: bottom 0.3s ease;
+  }
+
+  .video-js.vjs-user-active .vjs-control-bar {
+    bottom: 0;
+  }
+
+  /* Make big play button slightly smaller on mobile */
+  .video-js .vjs-big-play-button {
+    font-size: 2.5em;
+  }
+
+  /* Ensure touch targets are large enough */
+  .video-js .vjs-control {
+    min-width: 2.5em;
+  }
+}
+
+/* Improve visibility of controls against video content */
+.video-js .vjs-control-bar {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Ensure subtitle text is readable */
+.video-js .vjs-text-track-display {
+  bottom: 3em; /* Keep subtitles above control bar */
+}
+
+.video-js .vjs-text-track-cue {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 0.2em;
+  border-radius: 2px;
+}

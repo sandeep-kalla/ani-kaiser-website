@@ -5,6 +5,7 @@ import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import '@videojs/http-streaming';
 import '@videojs/themes/dist/forest/index.css';
+import './WatchEpisode.css'; // Import custom CSS for mobile optimization
 
 const WatchEpisode = () => {
   const { animeId, episodeId } = useParams();
@@ -114,8 +115,13 @@ const WatchEpisode = () => {
 
   // Initialize video player when source changes
   useEffect(() => {
-    // Return early if video element is not ready or no source
-    if (!videoRef.current || !videoSource) return;
+    // Return early if no source
+    if (!videoSource) return;
+    
+    // Ensure video element exists
+    if (!videoRef.current) {
+      return; // Return early if video element doesn't exist yet
+    }
 
     // Ensure we clean up the previous player instance
     if (playerRef.current) {
@@ -150,29 +156,79 @@ const WatchEpisode = () => {
         },
         userActions: {
           hotkeys: true
-        }
+        },
+        // Add control bar configuration to ensure subtitle button is visible
+        controlBar: {
+          children: [
+            'playToggle',
+            'volumePanel',
+            'currentTimeDisplay',
+            'timeDivider',
+            'durationDisplay',
+            'progressControl',
+            'liveDisplay',
+            'remainingTimeDisplay',
+            'customControlSpacer',
+            'playbackRateMenuButton',
+            'chaptersButton',
+            'descriptionsButton',
+            'subsCapsButton',  // This explicitly adds the subtitle/caption button
+            'audioTrackButton',
+            'fullscreenToggle'
+          ]
+        },
+        // Add subtitle tracks directly in the player options
+        tracks: videoSource.subtitles ? videoSource.subtitles.map((subtitle, index) => ({
+          kind: 'subtitles',
+          src: subtitle.file,
+          srclang: subtitle.srclang || 'en',
+          label: subtitle.label || 'Default',
+          default: index === 0
+        })) : []
       };
 
       // Initialize new player
       const player = videojs(videoRef.current, options);
       player.addClass('vjs-theme-forest');
 
-      // Add subtitle track if available
-      if (videoSource.subtitles) {
+      // Add subtitle tracks if available
+      if (videoSource.subtitles && Array.isArray(videoSource.subtitles)) {
+        // Clear existing text tracks
         while (player.remoteTextTracks().length > 0) {
           player.removeRemoteTextTrack(player.remoteTextTracks()[0]);
         }
 
-        const track = player.addRemoteTextTrack({
-          kind: 'subtitles',
-          src: videoSource.subtitles.url,
-          srclang: 'en',
-          label: 'English',
-          default: true,
-          mode: 'showing'
-        }, false);
+        // Add all available subtitle tracks
+        videoSource.subtitles.forEach((subtitle, index) => {
+          const trackEl = player.addRemoteTextTrack({
+            kind: 'subtitles',
+            src: subtitle.file,
+            srclang: subtitle.srclang || 'en',
+            label: subtitle.label || 'Default',
+            default: index === 0 // Make first track default
+          }, false); // Set to false to manually control showing
+          
+          // Log subtitle track for debugging
+          console.log(`Added subtitle track: ${subtitle.file}`, trackEl);
+        });
 
-        track.track.mode = 'showing';
+        // Force enable the first subtitle track after a short delay
+        setTimeout(() => {
+          const tracks = player.textTracks();
+          console.log('Available text tracks:', tracks.length);
+          
+          for (let i = 0; i < tracks.length; i++) {
+            const track = tracks[i];
+            console.log(`Track ${i}:`, track.label, track.language, track.kind);
+            
+            // Enable the first subtitle track
+            if (track.kind === 'subtitles') {
+              console.log('Setting track to showing:', track.label);
+              track.mode = 'showing';
+              break; // Only enable the first one
+            }
+          }
+        }, 1000); // Give time for tracks to load
       }
 
       // Add keyboard controls
@@ -268,14 +324,25 @@ const WatchEpisode = () => {
       if (!sourceResponse.data.success) {
         throw new Error(sourceResponse.data.message || 'Failed to fetch video source');
       }
-
-      const { sources, subtitles } = sourceResponse.data.data;
-
+      const { sources, tracks = [] } = sourceResponse.data.data;
+      // Safely log subtitles if they exist
+      if (tracks && tracks.length > 0 && tracks[0]?.file) {
+        console.log("subtitle 1", tracks[0].file);
+        if (tracks.length > 1 && tracks[1]?.file) {
+          console.log("subtitle 2", tracks[1].file);
+        }
+      }
+      // Update video source handling with all available subtitle tracks
       if (sources && sources.length > 0) {
         setVideoSource({
           url: sources[0].url,
           type: sources[0].type || 'hls',
-          subtitles: subtitles && subtitles.length > 0 ? subtitles[0] : null
+          subtitles: tracks && tracks.length > 0 ? tracks.map(track => ({
+            file: track.file,
+            label: track.label || 'Default',
+            kind: 'subtitles',
+            srclang: track.lang || 'en'
+          })) : null
         });
       } else {
         setVideoSource(null);
@@ -348,8 +415,8 @@ const WatchEpisode = () => {
               />
             </div>
             
-            {/* Keyboard Controls Help */}
-            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-75 text-white p-4 rounded text-sm">
+            {/* Keyboard Controls Help - Hidden on mobile */}
+            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-75 text-white p-4 rounded text-sm hidden md:block">
               <h3 className="font-semibold mb-2">Keyboard Controls:</h3>
               <ul className="space-y-1">
                 <li>Space - Play/Pause</li>
@@ -459,4 +526,4 @@ const WatchEpisode = () => {
   );
 };
 
-export default WatchEpisode; 
+export default WatchEpisode;
